@@ -1,0 +1,14 @@
+.tvShow {
+  border: 1px solid black;
+  border-radius: 3px;
+  padding: 10px;
+  width: fit-content;
+  display: inline-block;
+  margin: 10px;
+  cursor: pointer;
+}
+
+.shelf {
+  border-bottom: 1px solid black;
+  width: fit-content;
+}
