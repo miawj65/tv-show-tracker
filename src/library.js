@@ -15,7 +15,7 @@ export function TVShow({ props }) {
     return (
       <>
         <div>
-          <img src={props.imageSrc} width="80px"></img>
+          <img alt={props.title} src={props.imageSrc} width="80px"></img>
         </div>
         <div>
           Title: {props.name}
