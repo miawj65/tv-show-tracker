@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
-import './App.css';
-//import tvShows from './data.js';
-import { getTVShowEpisodes } from './tvShowService';
+import { useState, useEffect } from "react";
+import "./App.css";
+import { getTVShowEpisodes } from "./tvShowService.js";
 
-export function Description({ description }) {
-  return (
-    <div>
-      {description}
-    </div>
-  );
+export function Episodes({ episodeList }){
+  if(episodeList.length){
+    return(
+      <>
+        {episodeList[0].map(episode => (
+          <div key={episode.id}>
+            {episode.title}
+          </div>
+        ))};
+      </>
+    );
+  }
 }
 
 export function TVShow({ props }) {
@@ -28,17 +33,11 @@ export function Shelf({ tvShows, onViewEpisodesClick, onToggle, onDescriptionCli
   return(
     <>
       {tvShows.map(tvShow => (
-        <div key={tvShow.id} className='tvShow'>
+        <div key={tvShow.id} className="tvShow">
           <TVShow props={tvShow}></TVShow>
           <input type="button" value="View Episodes" onClick={e =>{
             onViewEpisodesClick(tvShow.id);
           }}/>
-          {/* <button onClick={e => {
-            onDescriptionClick(tvShow.id, !tvShow.descriptionShowing);
-          }}>
-            {tvShow.descriptionShowing ? "Hide" : "Show"} Description
-          </button>
-          {tvShow.descriptionShowing && <Description description={tvShow.description}/>} */}
           {/* <div>
             Watched: 
             <input type="checkbox" checked={tvShow.watched} onChange={e => {
@@ -119,17 +118,3 @@ export default function Library(tvShowList) {
     );
   }
 };
-
-export function Episodes({ episodeList }){
-  if(episodeList.length){
-    return(
-      <>
-        {episodeList[0].map(episode => (
-          <div key={episode.id}>
-            {episode.title}
-          </div>
-        ))};
-      </>
-    );
-  }
-}
