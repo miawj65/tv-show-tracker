@@ -1,14 +1,22 @@
 .tvShow {
   border: 1px solid black;
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 10px;
   width: fit-content;
   display: inline-block;
   margin: 10px;
   cursor: pointer;
+  width: 200px;
+  height: 200px;
+  overflow: overlay;
 }
 
-.shelf {
-  border-bottom: 1px solid black;
+.season {
+  display: inline-block;
   width: fit-content;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 5px;
 }

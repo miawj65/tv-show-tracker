@@ -1,8 +1,7 @@
-import { tvShows } from './data.js';
+import { useState, useEffect } from 'react';
 import './App.css';
-import { useState } from 'react';
-
-let nextId = 6;
+//import tvShows from './data.js';
+import { getTVShowEpisodes } from './tvShowService';
 
 export function Description({ description }) {
   return (
@@ -14,42 +13,62 @@ export function Description({ description }) {
 
 export function TVShow({ props }) {
     return (
-      <div>
-        Title: {props.name}
-      </div>
+      <>
+        <div>
+          <img src={props.imageSrc} width="80px"></img>
+        </div>
+        <div>
+          Title: {props.name}
+        </div>
+      </>
     );
 }
 
-export function Shelf({ tvShows, onToggle, onDescriptionClick, onDeleteClick }) {
+export function Shelf({ tvShows, onViewEpisodesClick, onToggle, onDescriptionClick, onDeleteClick }) {
   return(
     <>
       {tvShows.map(tvShow => (
         <div key={tvShow.id} className='tvShow'>
           <TVShow props={tvShow}></TVShow>
-          <button onClick={e => {
+          <input type="button" value="View Episodes" onClick={e =>{
+            onViewEpisodesClick(tvShow.id);
+          }}/>
+          {/* <button onClick={e => {
             onDescriptionClick(tvShow.id, !tvShow.descriptionShowing);
           }}>
             {tvShow.descriptionShowing ? "Hide" : "Show"} Description
           </button>
-          {tvShow.descriptionShowing && <Description description={tvShow.description}/>}
-          <div>
+          {tvShow.descriptionShowing && <Description description={tvShow.description}/>} */}
+          {/* <div>
             Watched: 
             <input type="checkbox" checked={tvShow.watched} onChange={e => {
               onToggle(tvShow.id, e.target.checked);
             }}/>
-          </div>
-          <input type="button" value="Delete" onClick={e =>{
+          </div> */}
+          {/* <input type="button" value="Delete" onClick={e =>{
             onDeleteClick(tvShow.id);
-          }}/>
+          }}/> */}
         </div>
       ))}
     </>
   )
 };
 
-export default function Library() {
-  const [list, setList] = useState(tvShows);
-  const [name, setName] = useState("");
+export default function Library(tvShowList) {
+  const [list, setList] = useState([]);
+  const [seasonList, setSeasonList] = useState([]);
+  const [episodeList, setEpisodeList] = useState([]);
+
+  useEffect(() => { 
+    setList(tvShowList.tvShows)
+  }, [tvShowList.tvShows] );
+
+  function handleViewEpisodesClick(tvShowId){
+    getTVShowEpisodes(tvShowId)
+    .then(seasons => {
+      setSeasonList(seasons);
+    });
+  }
 
   function handleDescriptionClick(tvShowId, isShowing) {
     setList(list.map(tvShow => {
@@ -77,21 +96,40 @@ export default function Library() {
     setList(list.filter(l => l.id !== tvShowId));
   }
 
-  if(list){
+  function handleSeasonClick(seasonId){
+    let filteredSeasonList = seasonList.filter(s => s.season === seasonId);
+    setEpisodeList(filteredSeasonList.map(s => {
+      return s.episodes;
+    }));
+  }
+
+  if(list.length){
     return (
       <>
-        <div className='shelf'>
-          <Shelf tvShows={list} onToggle={handleToggle} onDescriptionClick={handleDescriptionClick} onDeleteClick={handleDeleteClick}/>
+        <div>
+          <Shelf tvShows={list} onViewEpisodesClick={handleViewEpisodesClick} onToggle={handleToggle} onDescriptionClick={handleDescriptionClick} onDeleteClick={handleDeleteClick}/>
         </div>
-        <label>Name</label>
-        <input type="text" onChange={e => setName(e.target.value)}/>
-        <input type="button" value="Add" onClick={() =>{
-          setList([
-            ...list,
-            {id: nextId++, name: name}
-          ]);
-        }}/>
+        {seasonList.map(season => (
+          <input key={season.season} type="button" className="season" value={"Season " + season.season} onClick={e => {
+            handleSeasonClick(season.season);
+          }}/>
+        ))}
+        <Episodes episodeList={episodeList}></Episodes>
       </>
     );
   }
 };
+
+export function Episodes({ episodeList }){
+  if(episodeList.length){
+    return(
+      <>
+        {episodeList[0].map(episode => (
+          <div key={episode.id}>
+            {episode.title}
+          </div>
+        ))};
+      </>
+    );
+  }
+}
