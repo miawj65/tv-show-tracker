@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Library from "./library.js";
 import { getTVShows } from "./tvShowService.js";
-import { addUpdateUsers } from "./sqlconnection.js";
 
 export default function App() {
   const [list, setList] = useState([]);
@@ -21,8 +20,19 @@ export default function App() {
     });
   }
 
-  const userLogin = () => {
-    addUpdateUsers(username);
+  async function userLogin() {
+    let data = {
+      method: "post",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: username
+      })
+    }
+    const response = await fetch("/api/addUpdateUsers", data);
+    return await response.json();
   }
 
   return(

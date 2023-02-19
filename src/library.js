@@ -1,98 +1,58 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import { getTVShowEpisodes } from "./tvShowService.js";
-
-export function Episodes({ episodeList }){
-  if(episodeList.length){
-    return(
-      <>
-        {episodeList[0].map(episode => (
-          <div key={episode.id}>
-            {episode.title}
-          </div>
-        ))};
-      </>
-    );
-  }
-}
-
-export function TVShow({ props }) {
-    return (
-      <>
-        <div>
-          <img alt={props.title} src={props.imageSrc} width="80px"></img>
-        </div>
-        <div>
-          Title: {props.name}
-        </div>
-      </>
-    );
-}
-
-export function Shelf({ tvShows, onViewEpisodesClick, onToggle, onDescriptionClick, onDeleteClick }) {
-  return(
-    <>
-      {tvShows.map(tvShow => (
-        <div key={tvShow.id} className="tvShow">
-          <TVShow props={tvShow}></TVShow>
-          <input type="button" value="View Episodes" onClick={e =>{
-            onViewEpisodesClick(tvShow.id);
-          }}/>
-          {/* <div>
-            Watched: 
-            <input type="checkbox" checked={tvShow.watched} onChange={e => {
-              onToggle(tvShow.id, e.target.checked);
-            }}/>
-          </div> */}
-          {/* <input type="button" value="Delete" onClick={e =>{
-            onDeleteClick(tvShow.id);
-          }}/> */}
-        </div>
-      ))}
-    </>
-  )
-};
+import Episodes from "./episode.js";
+import Shelf from "./shelf.js";
 
 export default function Library(tvShowList) {
   const [list, setList] = useState([]);
   const [seasonList, setSeasonList] = useState([]);
   const [episodeList, setEpisodeList] = useState([]);
+  const [TVShowID, setTVShowID] = useState("");
 
   useEffect(() => { 
     setList(tvShowList.tvShows)
   }, [tvShowList.tvShows] );
 
   function handleViewEpisodesClick(tvShowId){
+    setTVShowID(tvShowId);
     getTVShowEpisodes(tvShowId)
     .then(seasons => {
       setSeasonList(seasons);
     });
   }
 
-  function handleDescriptionClick(tvShowId, isShowing) {
-    setList(list.map(tvShow => {
-      if(tvShow.id === tvShowId){
-        return {...tvShow, descriptionShowing: isShowing};
-      }
-      else {
-        return tvShow;
-      }
-    }));
+  async function handleAddClick(tvShowId, tvShowName){
+    let data = {
+      method: "post",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tvShowId: tvShowId,
+        name: tvShowName,
+        userId: 1
+      })
+    }
+    const response = await fetch("/api/addUpdateTVShows", data);
+    return await response.json();
   }
 
-  function handleToggle(tvShowId, isWatched){
-    setList(list.map(tvShow => {
-      if(tvShow.id === tvShowId){
-        return {...tvShow, watched: isWatched};
-      }
-      else {
-        return tvShow;
-      }
-    }));
-  }
-
-  function handleDeleteClick(tvShowId){
-    setList(list.filter(l => l.id !== tvShowId));
+  async function handleDeleteClick(tvShowId){
+    let data = {
+      method: "post",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        tvShowId: tvShowId,
+        userId: 1
+      })
+    }
+    const response = await fetch("/api/deleteTVShows", data);
+    return await response.json();
   }
 
   function handleSeasonClick(seasonId){
@@ -106,14 +66,14 @@ export default function Library(tvShowList) {
     return (
       <>
         <div>
-          <Shelf tvShows={list} onViewEpisodesClick={handleViewEpisodesClick} onToggle={handleToggle} onDescriptionClick={handleDescriptionClick} onDeleteClick={handleDeleteClick}/>
+          <Shelf tvShows={list} onViewEpisodesClick={handleViewEpisodesClick} onAddClick={handleAddClick} onDeleteClick={handleDeleteClick}/>
         </div>
         {seasonList.map(season => (
           <input key={season.season} type="button" className="season" value={"Season " + season.season} onClick={e => {
             handleSeasonClick(season.season);
           }}/>
         ))}
-        <Episodes episodeList={episodeList}></Episodes>
+        <Episodes episodeList={episodeList} tvShowId={TVShowID}></Episodes>
       </>
     );
   }
