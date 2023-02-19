@@ -108,7 +108,7 @@ app.post("/api/getTVShows", (req, res) => {
             let request = new sql.Request(pool);
             request.input("UserID", sql.Int, req.body.userId);
             request.execute("dbo.TVShows_GetByUser", (error, result) => {
-                res.send(result.recordset[0].TVShows);
+                res.send(result);
             });
         });
     } catch (error) {
@@ -120,9 +120,10 @@ app.post("/api/getEpisodes", (req, res) => {
     try {
         const pool = new sql.ConnectionPool(config, function () {
             let request = new sql.Request(pool);
-            request.input("TVShowID", sql.Int, req.body.tvShowId);
+            request.input("TVShowID", sql.NVarChar, req.body.tvShowId);
+            request.input("UserID", sql.Int, req.body.userId);
             request.execute("dbo.Episodes_GetByTVShow", (error, result) => {
-                res.send(result.recordset[0].Episodes);
+                res.send(result);
             });
         });
     }

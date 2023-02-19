@@ -1,4 +1,4 @@
-export default function Episodes({ episodeList, tvShowId }){
+export default function Episodes({ episodeList, tvShowId, onWatchedUpdated }){
   
     async function handleToggle(episodeId, episodeName, isWatched){
       let data = {
@@ -15,12 +15,24 @@ export default function Episodes({ episodeList, tvShowId }){
         })
       }
       if(isWatched){
-        const response = await fetch("/api/addUpdateEpisodes", data);
-        return await response.json();
+        await fetch("/api/addUpdateEpisodes", data).then(response => 
+          response.json().then(data => ({
+            data: data,
+            status: response.status
+          })
+          ).then(() => {
+            onWatchedUpdated(episodeId, episodeName, isWatched);
+        }));
       }
       else{
-        const response = await fetch("/api/deleteEpisodes", data);
-        return await response.json();
+        await fetch("/api/deleteEpisodes", data).then(response =>
+          response.json().then(data => ({
+            data: data,
+            status: response.status
+          })
+          ).then(() => {
+            onWatchedUpdated(episodeId, episodeName, isWatched);
+        }));
       }
     }
   
@@ -32,7 +44,7 @@ export default function Episodes({ episodeList, tvShowId }){
               {episode.title}
               <div>
                 Watched: 
-                <input type="checkbox" onChange={e => {
+                <input type="checkbox" checked={episode.watched} onChange={e => {
                   handleToggle(episode.id.replace("title", "").replaceAll("/", ""), episode.title, e.target.checked);
                 }}/>
               </div>
