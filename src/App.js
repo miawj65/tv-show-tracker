@@ -79,8 +79,8 @@ export default function App() {
     <>
       <input type="text" onChange={e => setUsername(e.target.value)}></input>
       <input type="button" value="Login" onClick={userLogin}></input>
-      <input type="text" onChange={e => setSearchParam(e.target.value)}></input>
-      <input type="button" value="Search" onClick={fetchTVShows}></input>
+      {userId > 0 ? <input type="text" onChange={e => setSearchParam(e.target.value)}></input> : <></>}
+      {userId > 0 ? <input type="button" value="Search" onClick={fetchTVShows}></input> : <></>}
       <UserLibrary tvShows={userList} currentUserId={userId} />
       <Library tvShows={list} currentUserId={userId} />
     </>
